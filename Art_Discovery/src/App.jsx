@@ -8,29 +8,26 @@ const ACCESS_KEY = import.meta.env.VITE_APP_ACCESS_KEY;
 function App() {
 
   
-  const [banList, setBanList] = useState({
-    century:[],
-    classification:[],	
-    culture:[],	
-    technique :[],
-  })
+  const [banList, setBanList] = useState([])
   const [currentArt, setCurrentArt] = useState(null);
   const [currentImage, setCurrentImage] = useState(null);
   const [prevImages, setPrevImages] = useState([]);
   
   const discoverForm = () => {
     let discovered =false;
-    while (discovered !=true){
-      makeQuery();
-      console.log("ran")
-      console.log(currentImage)
+    
+    makeQuery();
+    console.log("ran")
+    console.log(currentImage)
       
-        discovered = true
-    
-      
-    }
     
     
+  }
+
+  const addBanItem = (art, key) =>
+  {
+    setBanList([...banList, art[key]]);
+    console.log(banList);
   }
 
   const makeQuery = () => {
@@ -41,7 +38,6 @@ function App() {
   const callAPI = async (query) => {
     const response = await fetch(query);
     const json = await response.json();
-    console.log(json);
     setCurrentArt(json.records[0])
     imageQuery(json.records[0].id)
     
@@ -61,12 +57,16 @@ function App() {
       setCurrentImage(json.records[0].baseimageurl);
       setPrevImages((images) => [...images, json.records[0].baseimageurl]);
       console.log("correct")
-      discovered = true;
     }
     else{
       setCurrentImage();
     }
   }
+
+  const buttons = banList.map((d)=>{
+    return <button className='banned-buttons' key={d}>{d}</button>;
+  })
+
 
 
 
@@ -75,15 +75,18 @@ function App() {
       <h1>Discover Art! 🎨</h1>
       
       <button onClick={discoverForm}>🔀 Discover!</button>
-      {currentArt ? (<div className= "art-descrip"><h3>{currentArt.title}</h3> 
-      <button className='attribute-buttons'>{currentArt.technique}</button>
-      <button className='attribute-buttons'>{currentArt.century}</button> 
-      <button className='attribute-buttons'>{currentArt.classification}</button> 
-      <button className='attribute-buttons'>{currentArt.culture}</button>  
-      </div>) : 
-      (<div>
-
+      {currentArt ? (<div className='art-descrip'><h3>{currentArt.title}</h3>
+      {currentArt.technique ? (<button className='attribute-buttons' onClick={() =>{addBanItem(currentArt,"technique")}}>{currentArt.technique}</button> ): (<div>
+        </div>)}
+      {currentArt.century ? (<button className='attribute-buttons' onClick={() =>{addBanItem(currentArt,"century")}}>{currentArt.century}</button> ): (<div>
       </div>)} 
+      {currentArt.culture ? (<button className='attribute-buttons' onClick={() =>{addBanItem(currentArt,"culture")}}>{currentArt.culture}</button> ): (<div>
+      </div>)}
+      {currentArt.classification ? (<button className='attribute-buttons' onClick={() =>{addBanItem(currentArt,"classification")}}>{currentArt.classification}</button> ): (<div>
+      </div>)} 
+      </div>) : (<div> </div>)}
+      
+     
       {currentImage ? (
         <img
           className="screenshot"
@@ -100,6 +103,11 @@ function App() {
 
       <div className="container">
         <Gallery images={prevImages} />
+      </div>
+
+      <div className ="ban-list">
+        <h2>Banned items</h2>
+        {buttons}
       </div>
 
       <br></br>
